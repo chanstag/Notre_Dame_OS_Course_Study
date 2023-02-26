@@ -35,6 +35,13 @@ void	    usage(const char *program_name, int status) {
 /* Main Execution */
 
 int	    main(int argc, char *argv[]) {
+
+    if(argc < 1){
+        usage(argv[0], 1);
+    }
+    if(argc>1){
+        printDirectoryContents(argv[1]);
+    }
     return EXIT_SUCCESS;
 }
 

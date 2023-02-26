@@ -42,6 +42,8 @@ int         execute(const char *path, const Settings *settings);
 bool        is_directory_empty(const char *path);
 time_t      get_mtime(const char *path);
 
+void        printDirectoryContents(const char *path);
+
 #endif
 
 /* vim: set sts=4 sw=4 ts=8 expandtab ft=c: */

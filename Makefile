@@ -5,6 +5,10 @@ LDFLAGS=	-L.
 AR=		ar
 ARFLAGS=	rcs
 TARGETS=	search
+DEPS = search.h
+ODIR= obj
+_OBJ = execute.o filter.o main.o search.o utilities.o
+OBJ = $(patsubst %, $(ODIR)/%,$(_OBJ))
 
 all:		$(TARGETS)
 
@@ -19,3 +23,11 @@ clean:
 .PHONY:		all test benchmark clean
 
 # TODO: Add rules for search and object files
+
+
+$(ODIR)/%.o: %.c $(DEPS)
+	$(CC) -c -o $@ $< $(CFLAGS) $(LDFLAGS)
+
+search: $(OBJ)
+	$(CC) -o $@ $^ $(CFLAGS)
+
