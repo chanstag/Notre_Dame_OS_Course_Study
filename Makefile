@@ -24,7 +24,6 @@ clean:
 
 # TODO: Add rules for search and object files
 
-
 $(ODIR)/%.o: %.c $(DEPS)
 	$(CC) -c -o $@ $< $(CFLAGS) $(LDFLAGS)
 

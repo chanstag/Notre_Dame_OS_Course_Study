@@ -1,13 +1,5 @@
-Project 01 - README
-===================
+## Project 01
 
-Members
--------
+reference this web page for instructions: https://www3.nd.edu/~pbui/teaching/cse.20289.sp17/project01.html
 
-- Domer McDomerson (dmcdomer@nd.edu)
 
-Responses
----------
-
-Contributions
--------------
