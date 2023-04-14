@@ -9,6 +9,8 @@
 #include <sys/stat.h>
 #include <unistd.h>
 
+#include <assert.h>
+
 /* Functions */
 
 void	    usage(const char *program_name, int status) {
@@ -32,15 +34,183 @@ void	    usage(const char *program_name, int status) {
     exit(status);
 }
 
+char const *options_vec[] = {"-executable", "-readable", "-writeable", "-type", "-empty", "-name", "-path", "-perm", "-newer", "-uid", "-gid"};
+
+
+enum options{
+    executable,
+    readable,
+    writeable,
+    type,
+    empty,
+    name,
+    path,
+    perm,
+    newer,
+    uid,
+    gid
+};
+
+Settings* parseArgs(int argc,char *argv[]){
+    enum options opts;
+    Settings* settings = (Settings*)malloc(sizeof(Settings));
+    if(settings == NULL){
+        fprintf(stderr, "Failed to allocated memory. On line: %d", __LINE__);
+        return NULL;
+    }
+
+    initSettings(settings);
+    int i = 2;
+    int len_options = sizeof(options_vec)/sizeof(char*);
+    bool valid_option = false;
+    while(i < argc){
+        valid_option = false;
+        for(int j = 0; j < len_options; j++){
+            if(strcmp(argv[i], options_vec[j])){
+                valid_option = true;
+                opts = j;
+                 switch(opts){
+                    case executable:
+                        settings->access = X_OK;
+                        i++;
+                        break;
+                    case readable:
+                        settings->access = R_OK;
+                        i++;
+                        break;
+                    case writeable:
+                        settings->access = W_OK;
+                        i++;
+                        break;
+                    case type:
+                        if(strcmp(argv[i+1], "f") == 0){
+                            settings->type = 1;
+                        }
+                        else if(strcmp(argv[i+1], "d") == 0){
+                            settings->type = 2;
+                        }
+                        else{
+                            fprintf(stderr, "Please provide a valid parameter of either 'f' or 'd'\n");
+                            return NULL;
+                        }
+                        i += 2;
+                        break;
+                    case empty:
+                        settings->empty = true;
+                        i++;
+                        break;
+                    case name:
+                        //idk how to handle shell patterns yet
+                        settings->name = "*.txt"; //will need to fix this
+                        i += 2;
+                        break;
+                    case path:
+                        settings->path = argv[i+1];
+                        i += 2;
+                        break;
+                    case perm:
+                        sscanf(argv[i+1], "%d", &(settings->perm));
+                        i += 2;
+                        break;
+                    case newer:
+                        settings->newer = get_mtime(argv[i+1]);
+                        i += 2;
+                        break;
+                    case uid:
+                        settings->uid = atoi(argv[i+1]);
+                        i += 2;
+                        break;
+                    case gid:
+                        settings->gid = atoi(argv[i+1]);
+                        i += 2;
+                        break;
+                    default:
+                        settings->empty = false;
+                        i++;
+                        break;
+                 }
+            }
+           
+        }
+        if(!valid_option){
+            fprintf(stderr, "Please provide a valid option");
+            return NULL;
+        }
+       
+    }
+
+    return settings;
+}
+
+bool compareSettings(Settings* s1, Settings* s2){
+    if(s1->access != s2->access){
+        return false;
+    }
+    else if(s1->empty != s2->empty){
+        return false;
+    }
+    else if(s1->path != s2->path){
+
+    }
+    else if(s1->type != s2->type){
+        return false;
+    }
+    else if(strcmp(s1->name, s2->name) != 0){
+        return false;
+    }
+    else if(s1->newer != s2->newer){
+        return false;
+    }
+    else if(s1->uid != s2->uid){
+        return false;
+    }
+    else if(s1->gid != s2->gid){
+        return false;
+    }
+    return true;
+    
+}
+
+void test(){
+    //test 1 
+    Settings correct_settings;
+    Settings* parsed_settings;
+    initSettings(&correct_settings);
+    correct_settings.type = 1;
+    correct_settings.name = "*.txt";
+    correct_settings.access = X_OK;
+    char *args0[] = {"search", "./", "-exectuable"};
+    parsed_settings = parseArgs(4 , args0);
+    assert(compareSettings(&correct_settings, parsed_settings) == true);
+
+    //test 2
+    correct_settings.access = R_OK;
+    char *args1[] = {"search", "./", "-readable"};
+    parsed_settings = parseArgs(4, args1);
+    assert(compareSettings(&correct_settings, parsed_settings) == true);
+
+    //test 3
+
+}
+
 /* Main Execution */
 
-int	    main(int argc, char *argv[]) {
+int	main(int argc, char *argv[]) {
 
-    if(argc < 1){
+    if(argc < 1)
+    {
         usage(argv[0], 1);
     }
-    if(argc>1){
+    if(argc==2 && strcmp(argv[1], "-test") == 0)
+    {
+        test();
+    }
+    else if (argc==1)
+    {
         printDirectoryContents(argv[1]);
+    }
+    else{
+        parseArgs(argc, argv);
     }
     return EXIT_SUCCESS;
 }
