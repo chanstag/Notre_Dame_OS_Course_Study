@@ -56,7 +56,7 @@ bool        filter(const char *path, const Settings *settings) {
                     fprintf(stderr, "Access denied for faccessat.");
                }
                else if(error == EFAULT){
-
+                    
                }
                else if(error == EINVAL){
                     fprintf(stderr, "Mode was incorrectly set for faccessat.");
@@ -66,8 +66,10 @@ bool        filter(const char *path, const Settings *settings) {
                }
                return true;
            }
-           else if(){
-
+           //
+           if(settings->type != S_ISDIR (fd.st_mode)){
+               
+               return true;
            }
         
     }

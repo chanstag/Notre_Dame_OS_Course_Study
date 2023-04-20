@@ -43,7 +43,7 @@ bool        is_directory_empty(const char *path);
 time_t      get_mtime(const char *path);
 void        initSettings(Settings *settings);
 
-void        printDirectoryContents(const char *path);
+void        print_directory_contents(const char *path);
 
 #endif
 

@@ -72,14 +72,17 @@ Settings* parseArgs(int argc,char *argv[]){
                  switch(opts){
                     case executable:
                         settings->access = X_OK;
+                        settings->type = 1;
                         i++;
                         break;
                     case readable:
                         settings->access = R_OK;
+                        settings->type = 1;
                         i++;
                         break;
                     case writeable:
                         settings->access = W_OK;
+                        settings->type = 1;
                         i++;
                         break;
                     case type:
@@ -129,6 +132,7 @@ Settings* parseArgs(int argc,char *argv[]){
                         i++;
                         break;
                  }
+                break;
             }
            
         }
@@ -150,13 +154,19 @@ bool compareSettings(Settings* s1, Settings* s2){
         return false;
     }
     else if(s1->path != s2->path){
-
+        return false;
     }
     else if(s1->type != s2->type){
         return false;
     }
-    else if(strcmp(s1->name, s2->name) != 0){
+    else if((s1->name == NULL && s2->name != NULL) || (s1->name != NULL && s2->name == NULL)){
         return false;
+            
+    }
+    else if(s1->name != NULL && s2->name != NULL){
+        if(strcmp(s1->name, s2->name) != 0){
+            return false;
+        }
     }
     else if(s1->newer != s2->newer){
         return false;
@@ -168,7 +178,6 @@ bool compareSettings(Settings* s1, Settings* s2){
         return false;
     }
     return true;
-    
 }
 
 void test(){
@@ -177,16 +186,16 @@ void test(){
     Settings* parsed_settings;
     initSettings(&correct_settings);
     correct_settings.type = 1;
-    correct_settings.name = "*.txt";
+    // correct_settings.name = "*.txt";
     correct_settings.access = X_OK;
     char *args0[] = {"search", "./", "-exectuable"};
-    parsed_settings = parseArgs(4 , args0);
+    parsed_settings = parseArgs(3 , args0);
     assert(compareSettings(&correct_settings, parsed_settings) == true);
 
     //test 2
     correct_settings.access = R_OK;
     char *args1[] = {"search", "./", "-readable"};
-    parsed_settings = parseArgs(4, args1);
+    parsed_settings = parseArgs(3, args1);
     assert(compareSettings(&correct_settings, parsed_settings) == true);
 
     //test 3
@@ -207,7 +216,7 @@ int	main(int argc, char *argv[]) {
     }
     else if (argc==1)
     {
-        printDirectoryContents(argv[1]);
+        print_directory_contents(argv[1]);
     }
     else{
         parseArgs(argc, argv);
