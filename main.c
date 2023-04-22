@@ -181,6 +181,7 @@ bool compareSettings(Settings* s1, Settings* s2){
 }
 
 void test(){
+    bool test_passed = true;
     //test 1 
     Settings correct_settings;
     Settings* parsed_settings;
@@ -190,15 +191,42 @@ void test(){
     correct_settings.access = X_OK;
     char *args0[] = {"search", "./", "-exectuable"};
     parsed_settings = parseArgs(3 , args0);
-    assert(compareSettings(&correct_settings, parsed_settings) == true);
+    if(compareSettings(&correct_settings, parsed_settings) != true)
+    {
+        fprintf(stderr, "Test 1 failed\n");
+        test_passed = false;
+    }
 
     //test 2
     correct_settings.access = R_OK;
     char *args1[] = {"search", "./", "-readable"};
     parsed_settings = parseArgs(3, args1);
-    assert(compareSettings(&correct_settings, parsed_settings) == true);
+    if(compareSettings(&correct_settings, parsed_settings) == true)
+    {
+        fprintf(stderr, "Test 2 failed.\n");
+        test_passed = false;
+    }
 
     //test 3
+    correct_settings.access = W_OK;
+    char *args2[] = {"search", "./", "-writeable"};
+    parsed_settings = parseArgs(3, args2);
+    if(compareSettings(&correct_settings, parsed_settings) == true)
+    {
+        fprintf(stderr, "Test 3 failed.\n");
+        test_passed = false;
+    }
+
+    if(!test_passed)
+    {
+        fprintf(stderr, "Test suite failed.\n");
+        exit(1);
+    }
+    else
+    { 
+        fprintf(stdout, "All tests passed.\n");
+        exit(0);
+    }
 
 }
 
