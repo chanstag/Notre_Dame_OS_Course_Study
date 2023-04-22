@@ -66,7 +66,7 @@ Settings* parseArgs(int argc,char *argv[]){
     while(i < argc){
         valid_option = false;
         for(int j = 0; j < len_options; j++){
-            if(strcmp(argv[i], options_vec[j])){
+            if(strcmp(argv[i], options_vec[j]) == 0){
                 valid_option = true;
                 opts = j;
                  switch(opts){
@@ -134,10 +134,9 @@ Settings* parseArgs(int argc,char *argv[]){
                  }
                 break;
             }
-           
         }
         if(!valid_option){
-            fprintf(stderr, "Please provide a valid option");
+            fprintf(stderr, "Please provide a valid option.\n");
             return NULL;
         }
        
@@ -147,6 +146,9 @@ Settings* parseArgs(int argc,char *argv[]){
 }
 
 bool compareSettings(Settings* s1, Settings* s2){
+    if(s1 == NULL || s2 == NULL){
+        return false;
+    }
     if(s1->access != s2->access){
         return false;
     }
@@ -182,40 +184,51 @@ bool compareSettings(Settings* s1, Settings* s2){
 
 void test(){
     bool test_passed = true;
-    //test 1 
+    //test 0
     Settings correct_settings;
     Settings* parsed_settings;
     initSettings(&correct_settings);
     correct_settings.type = 1;
     // correct_settings.name = "*.txt";
     correct_settings.access = X_OK;
-    char *args0[] = {"search", "./", "-exectuable"};
+    char *args0[] = {"search", "./", "-executable"};
     parsed_settings = parseArgs(3 , args0);
     if(compareSettings(&correct_settings, parsed_settings) != true)
     {
-        fprintf(stderr, "Test 1 failed\n");
+        fprintf(stderr, "Test 0 failed\n");
+        test_passed = false;
+    }
+
+    //test 1
+    correct_settings.access = R_OK;
+    char *args1[] = {"search", "./", "-readable"};
+    parsed_settings = parseArgs(3, args1);
+    if(compareSettings(&correct_settings, parsed_settings) != true)
+    {
+        fprintf(stderr, "Test 1 failed.\n");
         test_passed = false;
     }
 
     //test 2
-    correct_settings.access = R_OK;
-    char *args1[] = {"search", "./", "-readable"};
-    parsed_settings = parseArgs(3, args1);
-    if(compareSettings(&correct_settings, parsed_settings) == true)
+    correct_settings.access = W_OK;
+    char *args2[] = {"search", "./", "-writeable"};
+    parsed_settings = parseArgs(3, args2);
+    if(compareSettings(&correct_settings, parsed_settings) != true)
     {
         fprintf(stderr, "Test 2 failed.\n");
         test_passed = false;
     }
 
-    //test 3
+    //test 3 (intentional fail)
     correct_settings.access = W_OK;
-    char *args2[] = {"search", "./", "-writeable"};
-    parsed_settings = parseArgs(3, args2);
-    if(compareSettings(&correct_settings, parsed_settings) == true)
+    char *args3[] = {"search", "./", "-w"};
+    parsed_settings = parseArgs(3, args3);
+    if(compareSettings(&correct_settings, parsed_settings) != true)
     {
-        fprintf(stderr, "Test 3 failed.\n");
-        test_passed = false;
+        fprintf(stderr, "Test 3 failed as expected.\n");
+        test_passed = true;
     }
+
 
     if(!test_passed)
     {
