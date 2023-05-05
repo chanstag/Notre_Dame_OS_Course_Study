@@ -50,7 +50,13 @@ enum options{
     uid,
     gid
 };
-
+/**
+ * @brief Function to parse the input parameters and set the appropriate settings in settings struct
+ * 
+ * @param argc 
+ * @param argv 
+ * @return Settings* 
+ */
 Settings* parseArgs(int argc,char *argv[]){
     enum options opts;
     Settings* settings = (Settings*)malloc(sizeof(Settings));
@@ -144,7 +150,14 @@ Settings* parseArgs(int argc,char *argv[]){
 
     return settings;
 }
-
+/**
+ * @brief Compare 2 settings structs to see if they are equal. returns true if they are equal; otherwise, returns false
+ * 
+ * @param s1 
+ * @param s2 
+ * @return true 
+ * @return false 
+ */
 bool compareSettings(Settings* s1, Settings* s2){
     if(s1 == NULL || s2 == NULL){
         return false;

@@ -14,7 +14,33 @@
     fprintf(stderr, "DEBUG %s:%d:%s: " M "\n", __FILE__, __LINE__, __func__, ##__VA_ARGS__)
 
 /* Type definitions */
-
+/** @struct Settings
+ * This represents the settings struct used to filter every path searched 
+ * 
+ * @param  access  Access modes (-executable, -readable, -writable)
+ * 
+ * @param type File type (-type)
+ * 
+ * @param empty Empty files and directories (-empty)
+ * 
+ * @param name pointer to base of file name
+ * 
+ * @param path Path of file matches shell pattern (-path)
+ * 
+ * @param perm File's permission bits are exactly octal mode (-perm)
+ * 
+ * @param newer File was modified more recently than file (-newer)
+ * 
+ * @param uid Files numeric user ID is n
+ * 
+ * @param gid File's numeric group ID is n
+ * 
+ * @param print (-print)
+ * 
+ * @param exec_argc number of arguments for (-exec)
+ *  
+ * @param exec_argv arguments for (-exec)
+ */
 typedef struct {
     int	    access;	/* Access modes (-executable, -readable, -writable) */
     int     type;       /* File type (-type); */

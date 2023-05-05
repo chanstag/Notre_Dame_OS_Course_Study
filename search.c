@@ -18,8 +18,6 @@
 int	    search(const char *root, const Settings *settings) {
 
 
-
-
     return EXIT_SUCCESS;
 }
 

@@ -47,9 +47,16 @@ bool        is_directory_empty(const char *path) {
     return false;
 }
 
+
+/**
+ * @brief print the contents of the given path   
+ * 
+ * @param path path to directory to print it's contents
+ */
 void print_directory_contents(const char *path){
     struct dirent* direct_entry;
     DIR* directoryfd = opendir(path);
+    int error = errno;
     //check if opendir failed
     if(directoryfd == NULL){
         fprintf(stderr, "could not open %s", path);
@@ -99,4 +106,17 @@ void    initSettings(Settings *settings){
     return;
 }
 
+get_directory_contents(const char* path){
+    
+}
+// 1 << 8 = 1 * 2^8  = 
+enum class {USER, GROUP, OTHER};
+enum permission {READ, WRITE, EXEC};
+mode_t perm(enum class c, enum permission p) { return 1 << ((2-p) + (2-c)*3);} //reference: https://jameshfisher.com/2017/02/24/what-is-mode_t/
+
+mode_t int_to_mode(int perm) {
+    mode_t mode = 0;
+    mode = 111111111 & perm;
+    return mode;
+}
 /* vim: set sts=4 sw=4 ts=8 expandtab ft=c: */

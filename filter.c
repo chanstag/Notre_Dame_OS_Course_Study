@@ -12,6 +12,8 @@
 #include <unistd.h>
 #include <_types.h>
 #include <stdlib.h>
+#include <libgen.h>
+
 
 /**
  * Test whether or not the given path should be filtered out of the output.
@@ -22,6 +24,8 @@
  */
 bool        filter(const char *path, const Settings *settings) {
     struct stat fd;
+    char* copy_path;
+    strcpy(copy_path, path);
     if(lstat(path, &fd) < 0){
        int error = errno;
        fprintf(stderr, "Error occured in stating: %s.", path);
@@ -50,7 +54,8 @@ bool        filter(const char *path, const Settings *settings) {
     }
     else{
           //test for access mode
-           if(faccessat(AT_FDCWD, path, settings->access, AT_SYMLINK_NOFOLLOW) < 0){
+           if(faccessat(AT_FDCWD, path, settings->access, AT_SYMLINK_NOFOLLOW) < 0)
+           {
                int error = errno;
                if(error == EACCES){
                     fprintf(stderr, "Access denied for faccessat.");
@@ -66,11 +71,29 @@ bool        filter(const char *path, const Settings *settings) {
                }
                return true;
            }
-           //
-           if(settings->type != S_ISDIR (fd.st_mode)){
-               
+          //
+          if(settings->type != S_ISDIR (fd.st_mode))
+          {
                return true;
-           }
+          }
+          if(settings->empty && fd.st_size == 0){
+               return true;
+          }
+          if(strcmp(settings->name, basename(copy_path)) == 0){
+               return false;
+          }
+          if(strcmp(settings->name, dirname(copy_path)) == 0){
+               return false;
+          }
+          if(int_to_mode(settings->perm) & fd.st_mode == 1){
+               return false;
+          }
+          else
+          {
+               return true;
+          }
+
+
         
     }
     return false;
