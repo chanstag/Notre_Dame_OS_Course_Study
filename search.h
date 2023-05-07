@@ -6,6 +6,7 @@
 #include <stdbool.h>
 #include <stdio.h>
 #include <time.h>
+#include <sys/stat.h>
 
 /* Macros */
 
@@ -70,6 +71,7 @@ time_t      get_mtime(const char *path);
 void        initSettings(Settings *settings);
 
 void        print_directory_contents(const char *path);
+mode_t      int_to_mode(int perm);
 
 #endif
 

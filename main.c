@@ -13,7 +13,7 @@
 
 /* Functions */
 
-void	    usage(const char *program_name, int status) {
+void        usage(const char *program_name, int status) {
     fprintf(stderr, "Usage: %s PATH [OPTIONS] [EXPRESSION]\n", program_name);
     fprintf(stderr, "\nOptions:\n");
     fprintf(stderr, "    -executable     File is executable or directory is searchable to user\n");
@@ -57,7 +57,7 @@ enum options{
  * @param argv 
  * @return Settings* 
  */
-Settings* parseArgs(int argc,char *argv[]){
+Settings*       parseArgs(int argc,char *argv[]){
     enum options opts;
     Settings* settings = (Settings*)malloc(sizeof(Settings));
     if(settings == NULL){
@@ -158,7 +158,7 @@ Settings* parseArgs(int argc,char *argv[]){
  * @return true 
  * @return false 
  */
-bool compareSettings(Settings* s1, Settings* s2){
+bool        compareSettings(Settings* s1, Settings* s2){
     if(s1 == NULL || s2 == NULL){
         return false;
     }
@@ -195,7 +195,7 @@ bool compareSettings(Settings* s1, Settings* s2){
     return true;
 }
 
-void test(){
+void        test(){
     bool test_passed = true;
     //test 0
     Settings correct_settings;
@@ -240,6 +240,17 @@ void test(){
     {
         fprintf(stderr, "Test 3 failed as expected.\n");
         test_passed = true;
+    }
+
+    //Test 4 filter.c
+    Settings test_filter_settings;
+    initSettings(&test_filter_settings);
+    test_filter_settings.newer = 1680895800;
+    test_filter_settings.type = 0;
+    if(filter("./Test_Folder/file_two", &test_filter_settings) && filter("./Test_Folder/file_three", &test_filter_settings))
+    {
+        fprintf(stderr, "Test 4 failed.\n");
+        test_passed = false;
     }
 
 

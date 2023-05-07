@@ -25,34 +25,45 @@
 bool        filter(const char *path, const Settings *settings) {
     struct stat fd;
     char* copy_path;
+    copy_path = (char*) malloc(sizeof(char) * strlen(path)+1);
     strcpy(copy_path, path);
-    if(lstat(path, &fd) < 0){
+
+    if(lstat(path, &fd) < 0)
+    {
        int error = errno;
        fprintf(stderr, "Error occured in stating: %s.", path);
-       if(error == EACCES){
+       if(error == EACCES)
+       {
             fprintf(stderr, "Search permission is denied for a component of the path prefix");
        }
-       else if(error == EIO){
+       else if(error == EIO)
+       {
             fprintf(stderr, "An error occurred while reading from the file system.");
        }
-       else if(error == ELOOP){
+       else if(error == ELOOP)
+       {
             fprintf(stderr, "Too many symbolic links were encountered in resolving %s.", path);
        }
-       else if(error == ENAMETOOLONG){
+       else if(error == ENAMETOOLONG)
+       {
             fprintf(stderr, "The length of the path argument exceeds {%d} or a pathname component is longer than {%d}.", _PC_PATH_MAX, _PC_NAME_MAX);
        }
-       else if(error == ENOENT){
+       else if(error == ENOENT)
+       {
             fprintf(stderr, "A component of path does not name an existing file or path is an empty string.");
        }
-       else if(error == ENOTDIR){
+       else if(error == ENOTDIR)
+       {
             fprintf(stderr, "A component of the path prefix is not a directory.");
        }
-       else if(error == EOVERFLOW){
+       else if(error == EOVERFLOW)
+       {
             fprintf(stderr, "The file size in bytes or the number of blocks allocated to the file or the file serial number cannot be represented correctly in the structure pointed to by buf.");
        }
        exit(EXIT_FAILURE);
     }
-    else{
+    else
+    {
           //test for access mode
            if(faccessat(AT_FDCWD, path, settings->access, AT_SYMLINK_NOFOLLOW) < 0)
            {
@@ -72,20 +83,35 @@ bool        filter(const char *path, const Settings *settings) {
                return true;
            }
           //
-          if(settings->type != S_ISDIR (fd.st_mode))
+          if(settings->type != S_ISDIR(fd.st_mode))
           {
                return true;
           }
-          if(settings->empty && fd.st_size == 0){
+          if(settings->empty && fd.st_size == 0)
+          {
                return true;
           }
-          if(strcmp(settings->name, basename(copy_path)) == 0){
+          if(strcmp(settings->name, basename(copy_path)) == 0)//
+          {
                return false;
           }
-          if(strcmp(settings->name, dirname(copy_path)) == 0){
+          if(fnmatch(settings->path, dirname(copy_path), FNM_PATHNAME) == 0)//check if directory name matches pattern
+          {
                return false;
           }
-          if(int_to_mode(settings->perm) & fd.st_mode == 1){
+          if((int_to_mode(settings->perm) == fd.st_mode))//Check if permissions match settings
+          {
+               return false;
+          }
+          if(settings->newer < fd.st_mtimespec.tv_sec){//check if file is newer than setting time
+               return false;
+          }
+          if(settings->uid == fd.st_uid)
+          {
+               return false;
+          }
+          if(settings->gid == fd.st_gid)
+          {
                return false;
           }
           else

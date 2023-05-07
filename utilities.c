@@ -94,8 +94,8 @@ void    initSettings(Settings *settings){
     settings->access = -1;
     settings->type = -1;
     settings->empty = false;
-    settings->name = NULL;
-    settings->path = NULL;
+    settings->name = "";
+    settings->path = "";
     settings->perm = -1;
     settings->newer = -1;
     settings->uid = -1;
@@ -109,14 +109,27 @@ void    initSettings(Settings *settings){
 get_directory_contents(const char* path){
     
 }
+
 // 1 << 8 = 1 * 2^8  = 
 enum class {USER, GROUP, OTHER};
 enum permission {READ, WRITE, EXEC};
 mode_t perm(enum class c, enum permission p) { return 1 << ((2-p) + (2-c)*3);} //reference: https://jameshfisher.com/2017/02/24/what-is-mode_t/
 
+/**
+ * @brief convert integer to mode_t
+ * 
+ * @param perm 
+ * @return mode_t 
+ */
 mode_t int_to_mode(int perm) {
     mode_t mode = 0;
-    mode = 111111111 & perm;
+    while(perm > 10 ){
+        mode = mode | (111 & perm%10);
+        mode = mode << 3; 
+        perm /= 10;
+    }
+    mode = mode | (111 & perm%10);
+    
     return mode;
 }
 /* vim: set sts=4 sw=4 ts=8 expandtab ft=c: */
