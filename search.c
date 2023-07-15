@@ -17,7 +17,7 @@
  */
 int search(const char *root, const Settings *settings)
 {
-    DEBUG_PRINT(("%s\n", root));
+    // DEBUG_PRINT(("%s\n", root));
     DIR *directory;
     int error;
     char *current_path;
@@ -38,7 +38,7 @@ int search(const char *root, const Settings *settings)
         snprintf(full_path, strlen(current_path) + strlen(entry->d_name) + 2, "%s/%s", current_path, entry->d_name);
         if (lstat(full_path, &fd) < 0)
         {
-
+            error = errno;
             fprintf(stderr, "Error occured in stating: %s.", full_path);
             if (error == EACCES)
             {
@@ -80,7 +80,10 @@ int search(const char *root, const Settings *settings)
                 }
                 else
                 {
-                    search(full_path, settings);
+                    if(search(full_path, settings) == 0)
+                    {
+                        return EXIT_SUCCESS;
+                    }
                 }
             }
             // call filter function on this file to see if it should be included in output

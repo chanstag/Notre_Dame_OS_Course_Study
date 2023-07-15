@@ -83,6 +83,7 @@ mode_t      int_to_mode(int perm);
 char**      alloc_stack(size_t size);
 int         expand_stack(char** stack, size_t* size);
 
+void sig_handler(int sig);
 
 #endif
 

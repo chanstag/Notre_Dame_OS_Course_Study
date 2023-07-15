@@ -272,19 +272,28 @@ void        test(){
 
     //test 7 search.c
     Settings test_search_settings;
-    test_search_settings.name = "/Users/chanstag/Systems Programming/Notre_Dame_Courses/cse-20289-sp17-project01/Test_Folder";
-    if(!search("/Users/chanstag/Systems_Programming/Notre_Dame_Courses/cse-20289-sp17-project01/Test_Folder", &test_search_settings))
+    test_search_settings.path = "/Users/chanstag/Systems Programming/Notre_Dame_Courses/cse-20289-sp17-project01/Test_Folder";
+    if(search("/Users/chanstag/Systems_Programming/Notre_Dame_Courses/cse-20289-sp17-project01/Test_Folder", &test_search_settings))
     {
         fprintf(stderr, "Test 7 failed.\n");
         test_passed = false;
     }
 
+    //test 8 search.c failure
+    test_search_settings.path = "/Users/chanstag/Systems Programming/Notre_Dame_Courses/cse-20289-sp17-project01/Test_Folder_2";
+    if(search("/Users/chanstag/Systems_Programming/Notre_Dame_Courses/cse-20289-sp17-project01/Test_Folder", &test_search_settings))
+    {
+        fprintf(stderr, "Test 8 failed as expected.\n");
+        test_passed = true;
+    }
+
     Settings test_exec_settings;
     const char* path = "/Users/chanstag/Systems_Programming/Notre_Dame_Courses/cse-20289-sp17-project01/Test_Folder";\
     char* args[] = {"ls", "<path>","|", "wc", "-l"};
+    // char* args[] = {"ls", "<path>"};
     test_exec_settings.exec_argv = args;
     test_exec_settings.exec_argc = 5;
-    if(!execute(path, &test_exec_settings))
+    if(execute(path, &test_exec_settings))
     {
         fprintf(stderr, "Test 8 failed.\n");
         test_passed = false;

@@ -161,4 +161,38 @@ mode_t int_to_mode(int perm) {
     
     return mode;
 }
+
+void sig_handler(int sig)
+{
+    int status;
+    pid_t chpid = wait(&status);
+    if(WIFEXITED(status))
+    {
+        printf("Child process complete with status: %d\n", WEXITSTATUS(status));
+    }
+    else
+    {
+        if(WIFSIGNALED(status))
+        {
+            printf("Child exited abnormally with status: %d and signal %d\n", WEXITSTATUS(status), WTERMSIG(status));
+        }
+        else{
+            printf("Child exited abnormally with status: %d\n", WEXITSTATUS(status));
+        }
+    }
+    // pid_t chpid = wait(NULL);
+
+    /* WARNING : to show the call of the handler, do not do that
+        in a 'real' code, we are in a handler of a signal */
+    printf("Child pid %d ended (signal %d)\n", chpid, sig); 
+
+    /* does 'something' to allow the parent to know chpid 
+        terminated in a way compatible with parent requirement */
+}
+
+void print_char_array(int argc, char** args){
+    for(int i = 0; i < argc; i++){
+        printf("arg[%d] = %s", i, args[i]);
+    }
+}
 /* vim: set sts=4 sw=4 ts=8 expandtab ft=c: */
