@@ -28,10 +28,10 @@ bool        filter(const char *path, const Settings *settings) {
     copy_path = (char*) malloc(sizeof(char) * strlen(path)+1);
     strcpy(copy_path, path);
 
-    if(lstat(path, &fd) < 0)
+    if(lstat(copy_path, &fd) < 0)
     {
        int error = errno;
-       fprintf(stderr, "Error occured in stating: %s.", path);
+       fprintf(stderr, "Error occured in stating: %s.", copy_path);
        if(error == EACCES)
        {
             fprintf(stderr, "Search permission is denied for a component of the path prefix");
@@ -42,7 +42,7 @@ bool        filter(const char *path, const Settings *settings) {
        }
        else if(error == ELOOP)
        {
-            fprintf(stderr, "Too many symbolic links were encountered in resolving %s.", path);
+            fprintf(stderr, "Too many symbolic links were encountered in resolving %s.", copy_path);
        }
        else if(error == ENAMETOOLONG)
        {
@@ -65,7 +65,7 @@ bool        filter(const char *path, const Settings *settings) {
     else
     {
           //test for access mode
-           if(faccessat(AT_FDCWD, path, settings->access, AT_SYMLINK_NOFOLLOW) < 0)
+           if(faccessat(AT_FDCWD, copy_path, settings->access, AT_SYMLINK_NOFOLLOW) < 0)
            {
                int error = errno;
                if(error == EACCES){
@@ -82,13 +82,21 @@ bool        filter(const char *path, const Settings *settings) {
                }
                return true;
            }
+           else
+           {
+               
+           }
           //
           if(settings->type != S_ISDIR(fd.st_mode))
           {
                return true;
           }
+          if(settings->empty && S_ISDIR(fd.st_mode)){
+               
+          }
           if(settings->empty && fd.st_size == 0)
           {
+
                return true;
           }
           if(strcmp(settings->name, basename(copy_path)) == 0)//
@@ -103,7 +111,7 @@ bool        filter(const char *path, const Settings *settings) {
           {
                return false;
           }
-          if(settings->newer < fd.st_mtimespec.tv_sec){//check if file is newer than setting time
+          if(settings->newer != -1 && settings->newer < fd.st_mtimespec.tv_sec){//check if file is newer than setting time
                return false;
           }
           if(settings->uid == fd.st_uid)

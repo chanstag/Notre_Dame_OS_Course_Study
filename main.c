@@ -242,7 +242,7 @@ void        test(){
         test_passed = true;
     }
 
-    //Test 4 filter.c
+    //Test 4 filter.c settings->newer return false
     Settings test_filter_settings;
     initSettings(&test_filter_settings);
     test_filter_settings.newer = 1680895800;
@@ -253,6 +253,42 @@ void        test(){
         test_passed = false;
     }
 
+    //test 5 filter.c settings->newer return true
+    if(!filter("./Test_Folder/file_one", &test_filter_settings))
+    {
+        fprintf(stderr, "Test 5 failed.\n");
+        test_passed = false;
+    }
+
+    //test 6 filter.c settings->empty return true
+    test_filter_settings.newer = -1;
+    test_filter_settings.type = 0;
+    test_filter_settings.empty = true;
+    if(!filter("./Test_Folder/file_one", &test_filter_settings))
+    {
+        fprintf(stderr, "Test 6 failed.\n");
+        test_passed = false;
+    }
+
+    //test 7 search.c
+    Settings test_search_settings;
+    test_search_settings.name = "/Users/chanstag/Systems Programming/Notre_Dame_Courses/cse-20289-sp17-project01/Test_Folder";
+    if(!search("/Users/chanstag/Systems_Programming/Notre_Dame_Courses/cse-20289-sp17-project01/Test_Folder", &test_search_settings))
+    {
+        fprintf(stderr, "Test 7 failed.\n");
+        test_passed = false;
+    }
+
+    Settings test_exec_settings;
+    const char* path = "/Users/chanstag/Systems_Programming/Notre_Dame_Courses/cse-20289-sp17-project01/Test_Folder";\
+    char* args[] = {"ls", "<path>","|", "wc", "-l"};
+    test_exec_settings.exec_argv = args;
+    test_exec_settings.exec_argc = 5;
+    if(!execute(path, &test_exec_settings))
+    {
+        fprintf(stderr, "Test 8 failed.\n");
+        test_passed = false;
+    }
 
     if(!test_passed)
     {

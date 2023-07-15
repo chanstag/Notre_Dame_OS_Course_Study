@@ -8,6 +8,14 @@
 #include <time.h>
 #include <sys/stat.h>
 
+#define DEBUG
+
+#ifdef DEBUG
+# define DEBUG_PRINT(x) printf x
+#else
+# define DEBUG_PRINT(x) do {} while (0)
+#endif
+
 /* Macros */
 
 #define	    streq(s0, s1)   (strcmp((s0), (s1)) == 0)
@@ -72,6 +80,9 @@ void        initSettings(Settings *settings);
 
 void        print_directory_contents(const char *path);
 mode_t      int_to_mode(int perm);
+char**      alloc_stack(size_t size);
+int         expand_stack(char** stack, size_t* size);
+
 
 #endif
 

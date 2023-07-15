@@ -58,7 +58,7 @@ void print_directory_contents(const char *path){
     DIR* directoryfd = opendir(path);
     int error = errno;
     //check if opendir failed
-    if(directoryfd == NULL){
+    if(directoryfd == NULL && error != 0){
         fprintf(stderr, "could not open %s", path);
         exit(EXIT_FAILURE);
     }
@@ -91,13 +91,13 @@ time_t      get_mtime(const char *path) {
  *
  */
 void    initSettings(Settings *settings){
-    settings->access = -1;
-    settings->type = -1;
+    settings->access = 0;
+    settings->type = 0;
     settings->empty = false;
     settings->name = "";
     settings->path = "";
-    settings->perm = -1;
-    settings->newer = -1;
+    settings->perm = 0;
+    settings->newer = 0;
     settings->uid = -1;
     settings->gid = -1;
     settings->print = true;
@@ -106,10 +106,39 @@ void    initSettings(Settings *settings){
     return;
 }
 
-get_directory_contents(const char* path){
+void get_directory_contents(const char* path){
     
+    return;
 }
 
+char** alloc_stack(size_t size){
+    char** stack;
+    stack = (char**)malloc(sizeof(char*) * size);
+    for(int i = 0; i < size; i++){
+        stack[i] = (char*)malloc(sizeof(char) * 20);
+    }
+    if(stack != NULL){
+        return stack;
+    }
+    else{
+        exit(EXIT_FAILURE);
+    }
+}
+
+int expand_stack(char** stack, size_t* size){
+    char** new_stack;
+    size_t new_size = *size*2;
+    new_stack = (char**)malloc(sizeof(char*) * (*size*2));
+    for(int i = 0; i < *size; i++){
+        new_stack[i] = (char*)malloc(sizeof(char) * (strlen(stack[i]) + 1));
+        strcpy(new_stack[i],  stack[i]);
+        free(stack[i]);
+    }
+    free(stack);
+    stack = new_stack;
+    *size = new_size;
+    return 0;
+}
 // 1 << 8 = 1 * 2^8  = 
 enum class {USER, GROUP, OTHER};
 enum permission {READ, WRITE, EXEC};
