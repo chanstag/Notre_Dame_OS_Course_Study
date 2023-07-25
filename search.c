@@ -23,6 +23,7 @@ int search(const char *root, const Settings *settings)
     char *current_path;
     char *full_path;
     struct stat fd;
+    bool success = false;
 
     current_path = (char *)malloc(sizeof(char) * strlen(root) + 1);
     full_path = (char *)malloc(sizeof(char) * 2 * strlen(root) + 1);
@@ -82,7 +83,7 @@ int search(const char *root, const Settings *settings)
                 {
                     if(search(full_path, settings) == 0)
                     {
-                        return EXIT_SUCCESS;
+                        success = true;
                     }
                 }
             }
@@ -91,6 +92,7 @@ int search(const char *root, const Settings *settings)
             {
                 // execute(full_path, settings);
                 printf("%s", full_path);
+                success = true;
             }
             
         }
@@ -102,15 +104,14 @@ int search(const char *root, const Settings *settings)
     if (entry == NULL && error != 0)
     {
         fprintf(stderr, "Failed to read directory entry.");
-        return EXIT_FAILURE;
     }
-    else if (entry == NULL && error == 0)
-    {
-        return EXIT_FAILURE;
-    }
+    // else if (entry == NULL && error == 0)
+    // {
+        
+    // }
     
 
-    return EXIT_SUCCESS;
+    return success;
 }
 
     /* vim: set sts=4 sw=4 ts=8 expandtab ft=c: */

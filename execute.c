@@ -25,31 +25,30 @@ int	    execute(const char *path, const Settings *settings) {
     ssize_t nread;
     int argc = settings->exec_argc;
 
-    // settings->exec_argv[settings->exec_argc+1] = NULL;
+    /*
+    Be aware when using pipes, this is actually two processes. 
+    Reference this SO page: https://stackoverflow.com/questions/18603153/linux-execvp-ls-cannot-access-no-such-file-or-directory
+    */
     char **args = (char**)malloc(sizeof(char*) * argc+1);//check if malloc was successful
     for(int i = 0; i < argc+1; i++){
-        if(strcmp(settings->exec_argv[i], "<path>") == 0)
-        { 
-            args[i] = (char*)malloc(sizeof(char) * (strlen(path)+1));
-            if(strlcpy(args[i], path, strlen(path) + 1) == NULL)
-            {
-                fprintf(stderr, "Failed to copy path to args.");
-                exit(1);   
-            } 
-        }
-        else
-        {
-            args[i] = (char*)malloc(strlen(settings->exec_argv[i])+1);
-            strlcpy(args[i], settings->exec_argv[i], strlen(settings->exec_argv[i])+1);
-        }
+        settings->exec_argv[i] = replace_str(settings->exec_argv[i], "<path>", path);
+        // if(strcmp(tok, "<path>") == 0)
+        // { 
+        //     args[i] = (char*)malloc(sizeof(char) * (strlen(path)+1));
+        //     if(strlcpy(args[i], path, strlen(path) + 1) == NULL)
+        //     {
+        //         fprintf(stderr, "Failed to copy path to args.");
+        //         exit(1);   
+        //     } 
+        // }
+        // else
+        // {
+        args[i] = (char*)malloc(strlen(settings->exec_argv[i])+1);
+        strlcpy(args[i], settings->exec_argv[i], strlen(settings->exec_argv[i])+1);
+        // }
+
     }
    
-    // args[settings->exec_argc] = (char*)malloc(sizeof(char) * (strlen(path)+1));
-    // if(strlcpy(args[settings->exec_argc], path, strlen(path) + 1) == NULL)
-    // {
-    //     fprintf(stderr, "Failed to copy path to argv.");
-    //     exit(1);   
-    // }
     args[argc+1] = NULL;
     signal(SIGCHLD, sig_handler);
 

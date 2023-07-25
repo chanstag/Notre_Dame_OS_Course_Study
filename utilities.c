@@ -195,4 +195,21 @@ void print_char_array(int argc, char** args){
         printf("arg[%d] = %s", i, args[i]);
     }
 }
+
+char *replace_str(char *str, char *orig, const char *rep)
+{
+  char* buffer = (char*) malloc(sizeof(char) * 4096);
+  char *p;
+
+  if(!(p = strstr(str, orig)))  // Is 'orig' even in 'str'?
+    return str;
+
+  strncpy(buffer, str, p-str); // Copy characters from 'str' start to 'orig' st$
+  buffer[p-str] = '\0';
+
+  sprintf(buffer+(p-str), "%s%s", rep, p+strlen(orig));
+
+  return buffer;
+}
+
 /* vim: set sts=4 sw=4 ts=8 expandtab ft=c: */

@@ -236,17 +236,17 @@ void        test(){
     correct_settings.access = W_OK;
     char *args3[] = {"search", "./", "-w"};
     parsed_settings = parseArgs(3, args3);
-    if(compareSettings(&correct_settings, parsed_settings) != true)
+    if(compareSettings(&correct_settings, parsed_settings) == true) // this test should fail
     {
-        fprintf(stderr, "Test 3 failed as expected.\n");
-        test_passed = true;
+        fprintf(stderr, "Test 3 passed, but should have failed.\n");
+        test_passed = false;
     }
 
     //Test 4 filter.c settings->newer return false
     Settings test_filter_settings;
     initSettings(&test_filter_settings);
     test_filter_settings.newer = 1680895800;
-    test_filter_settings.type = 0;
+    test_filter_settings.type = 1;
     if(filter("./Test_Folder/file_two", &test_filter_settings) && filter("./Test_Folder/file_three", &test_filter_settings))
     {
         fprintf(stderr, "Test 4 failed.\n");
@@ -262,7 +262,7 @@ void        test(){
 
     //test 6 filter.c settings->empty return true
     test_filter_settings.newer = -1;
-    test_filter_settings.type = 0;
+    test_filter_settings.type = 1;
     test_filter_settings.empty = true;
     if(!filter("./Test_Folder/file_one", &test_filter_settings))
     {
@@ -272,8 +272,13 @@ void        test(){
 
     //test 7 search.c
     Settings test_search_settings;
-    test_search_settings.path = "/Users/chanstag/Systems Programming/Notre_Dame_Courses/cse-20289-sp17-project01/Test_Folder";
-    if(search("/Users/chanstag/Systems_Programming/Notre_Dame_Courses/cse-20289-sp17-project01/Test_Folder", &test_search_settings))
+    test_search_settings.access = R_OK;
+    test_search_settings.type = 2;
+    test_search_settings.name = NULL;
+    test_search_settings.empty = false;
+    test_search_settings.newer = -1;
+    test_search_settings.path = "/Users/chanstag/Systems_Programming/Notre_Dame_Courses/cse-20289-sp17-project01/Test_Folder";
+    if(!search("/Users/chanstag/Systems_Programming/Notre_Dame_Courses/cse-20289-sp17-project01/Test_Folder", &test_search_settings))
     {
         fprintf(stderr, "Test 7 failed.\n");
         test_passed = false;
@@ -281,18 +286,22 @@ void        test(){
 
     //test 8 search.c failure
     test_search_settings.path = "/Users/chanstag/Systems Programming/Notre_Dame_Courses/cse-20289-sp17-project01/Test_Folder_2";
+    test_search_settings.type = 2;
+    test_search_settings.name = NULL;
+    test_search_settings.empty = false;
+    test_search_settings.newer = -1;
     if(search("/Users/chanstag/Systems_Programming/Notre_Dame_Courses/cse-20289-sp17-project01/Test_Folder", &test_search_settings))
     {
-        fprintf(stderr, "Test 8 failed as expected.\n");
-        test_passed = true;
+        fprintf(stderr, "Test 8 passed, but should have failed.\n");
+        test_passed = false;
     }
 
     Settings test_exec_settings;
     const char* path = "/Users/chanstag/Systems_Programming/Notre_Dame_Courses/cse-20289-sp17-project01/Test_Folder";\
-    char* args[] = {"ls", "<path>","|", "wc", "-l"};
+    char* args[] = {"sh", "-c", "ls <path>| wc -l"};
     // char* args[] = {"ls", "<path>"};
     test_exec_settings.exec_argv = args;
-    test_exec_settings.exec_argc = 5;
+    test_exec_settings.exec_argc = 2;
     if(execute(path, &test_exec_settings))
     {
         fprintf(stderr, "Test 8 failed.\n");

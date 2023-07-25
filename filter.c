@@ -87,7 +87,7 @@ bool        filter(const char *path, const Settings *settings) {
                
            }
           //
-          if(settings->type != S_ISDIR(fd.st_mode))
+          if(settings->type == 2 && S_ISDIR(fd.st_mode) == 0)
           {
                return true;
           }
@@ -96,16 +96,23 @@ bool        filter(const char *path, const Settings *settings) {
           }
           if(settings->empty && fd.st_size == 0)
           {
-
                return true;
           }
-          if(strcmp(settings->name, basename(copy_path)) == 0)//
+          if(settings->name)
           {
-               return false;
+               if(strcmp(settings->name, basename(copy_path)) == 0)//
+               {
+                    return false;
+               }
+
           }
-          if(fnmatch(settings->path, dirname(copy_path), FNM_PATHNAME) == 0)//check if directory name matches pattern
+          if(settings->path)
           {
-               return false;
+               printf("dirname: %s", dirname(copy_path));
+               if(fnmatch(dirname(copy_path), settings->path, FNM_PATHNAME) == 0)//check if directory name matches pattern
+               {
+                    return false;
+               }
           }
           if((int_to_mode(settings->perm) == fd.st_mode))//Check if permissions match settings
           {
