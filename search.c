@@ -32,7 +32,14 @@ int search(const char *root, const Settings *settings)
     directory = opendir(current_path);
     errno = 0;
     struct dirent *entry = readdir(directory);
-    error = errno;
+    if(entry  == NULL)
+    {
+        error = errno;
+        if(error != -1){
+            fprintf(stderr, "Error reading directory entry.");
+        }
+
+    }
 
     while (entry != NULL)
     {
@@ -76,12 +83,13 @@ int search(const char *root, const Settings *settings)
             if (S_ISDIR(fd.st_mode))
             {
                 if (strcmp(entry->d_name, ".") == 0 || strcmp(entry->d_name, "..") == 0)
+                // if(fnmatch(dirname(copy_path), settings->path, FNM_PATHNAME) == 0)
                 {
 
                 }
                 else
                 {
-                    if(search(full_path, settings) == 0)
+                    if(search(full_path, settings) == true)
                     {
                         success = true;
                     }
@@ -91,13 +99,31 @@ int search(const char *root, const Settings *settings)
             if(!filter(full_path, settings))
             {
                 // execute(full_path, settings);
-                printf("%s", full_path);
+                printf("%s\n", full_path);
                 success = true;
             }
             
         }
         strcpy(full_path, current_path);
         entry = readdir(directory);
+        if(entry == NULL)
+        {
+            error = errno;
+            if(error == EIO){
+                fprintf(stderr, "Error reading directory entry.");
+            }
+            else if (error == EFAULT)
+            {
+                fprintf(stderr, "Error reading directory entry.");
+            }
+            else if (error == EBADF)
+            {
+                fprintf(stderr, "Error reading directory entry.");
+            }
+        }
+
+        
+        
 
     }
 

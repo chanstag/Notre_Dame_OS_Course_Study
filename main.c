@@ -264,7 +264,7 @@ void        test(){
     test_filter_settings.newer = -1;
     test_filter_settings.type = 1;
     test_filter_settings.empty = true;
-    if(!filter("./Test_Folder/file_one", &test_filter_settings))
+    if(filter("./Test_Folder/file_one", &test_filter_settings))
     {
         fprintf(stderr, "Test 6 failed.\n");
         test_passed = false;
@@ -286,7 +286,7 @@ void        test(){
 
     //test 8 search.c failure
     test_search_settings.path = "/Users/chanstag/Systems Programming/Notre_Dame_Courses/cse-20289-sp17-project01/Test_Folder_2";
-    test_search_settings.type = 2;
+    test_search_settings.type = NULL;
     test_search_settings.name = NULL;
     test_search_settings.empty = false;
     test_search_settings.newer = -1;
@@ -298,13 +298,12 @@ void        test(){
 
     Settings test_exec_settings;
     const char* path = "/Users/chanstag/Systems_Programming/Notre_Dame_Courses/cse-20289-sp17-project01/Test_Folder";\
-    char* args[] = {"sh", "-c", "ls <path>| wc -l"};
-    // char* args[] = {"ls", "<path>"};
+    char* args[] = {"sh", "-c", "ls <path> | wc -l"}; //must invoke this way because a pipe, | , is techinally 2 processes
     test_exec_settings.exec_argv = args;
-    test_exec_settings.exec_argc = 2;
+    test_exec_settings.exec_argc = 3;
     if(execute(path, &test_exec_settings))
     {
-        fprintf(stderr, "Test 8 failed.\n");
+        fprintf(stderr, "Test 9 failed.\n");
         test_passed = false;
     }
 
@@ -325,7 +324,7 @@ void        test(){
 
 int	main(int argc, char *argv[]) {
 
-    if(argc < 1)
+    if(argc == 1)
     {
         usage(argv[0], 1);
     }
@@ -333,12 +332,13 @@ int	main(int argc, char *argv[]) {
     {
         test();
     }
-    else if (argc==1)
-    {
-        print_directory_contents(argv[1]);
-    }
+    // else if (argc==2)
+    // {
+    //     print_directory_contents(argv[1]);
+    // }
     else{
-        parseArgs(argc, argv);
+        Settings *s = parseArgs(argc, argv);
+        search(argv[1], s);
     }
     return EXIT_SUCCESS;
 }

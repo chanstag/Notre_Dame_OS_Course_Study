@@ -87,16 +87,16 @@ bool        filter(const char *path, const Settings *settings) {
                
            }
           //
-          if(settings->type == 2 && S_ISDIR(fd.st_mode) == 0)
+          if(settings->type == 2 && S_ISDIR(fd.st_mode) != 0)
           {
-               return true;
+               return false;
           }
           if(settings->empty && S_ISDIR(fd.st_mode)){
                
           }
           if(settings->empty && fd.st_size == 0)
           {
-               return true;
+               return false;
           }
           if(settings->name)
           {
@@ -108,7 +108,7 @@ bool        filter(const char *path, const Settings *settings) {
           }
           if(settings->path)
           {
-               printf("dirname: %s", dirname(copy_path));
+               // printf("dirname: %s", dirname(copy_path));
                if(fnmatch(dirname(copy_path), settings->path, FNM_PATHNAME) == 0)//check if directory name matches pattern
                {
                     return false;

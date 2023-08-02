@@ -29,8 +29,8 @@ int	    execute(const char *path, const Settings *settings) {
     Be aware when using pipes, this is actually two processes. 
     Reference this SO page: https://stackoverflow.com/questions/18603153/linux-execvp-ls-cannot-access-no-such-file-or-directory
     */
-    char **args = (char**)malloc(sizeof(char*) * argc+1);//check if malloc was successful
-    for(int i = 0; i < argc+1; i++){
+    char **args = (char**)malloc(sizeof(char*) * (argc+1));//check if malloc was successful
+    for(int i = 0; i < argc; i++){
         settings->exec_argv[i] = replace_str(settings->exec_argv[i], "<path>", path);
         // if(strcmp(tok, "<path>") == 0)
         // { 
@@ -49,7 +49,7 @@ int	    execute(const char *path, const Settings *settings) {
 
     }
    
-    args[argc+1] = NULL;
+    args[argc] = NULL;
     signal(SIGCHLD, sig_handler);
 
     pipe(p);
@@ -65,7 +65,7 @@ int	    execute(const char *path, const Settings *settings) {
         //this is child process
         if(execvp(args[0], args) == -1)
         {
-            // int error = errno;
+            int error = errno;
             perror("Execvp function failed");
             fprintf(stderr, "Failed to execute the given program %s", settings->exec_argv[0]);
             
