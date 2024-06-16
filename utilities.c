@@ -10,6 +10,49 @@
 #include <sys/stat.h>
 #include <unistd.h>
 #include <stdlib.h>
+#include <libgen.h>
+
+void remove_trailing_slash(char *str) {
+    size_t len = strlen(str);
+    if (len > 0 && str[len - 1] == '/') {
+        str[len - 1] = '\0';
+    }
+}
+
+/**
+ * @brief 
+ * 
+ */
+char*       join_path(char* dir_path, char* path)
+{
+    struct stat fd;
+    char* dir_path_copy = (char*) malloc(sizeof(char)*strlen(dir_path)+1);
+    char* new_path = (char*) malloc(sizeof(char)*(strlen(dir_path)+strlen(path)+2));
+    strcpy(dir_path_copy, dir_path);
+    if (lstat(dir_path_copy, &fd) < 0)
+    {
+        fprintf(stderr, "Failed to stat file");
+        return NULL;
+    }
+
+    if (S_ISDIR(fd.st_mode))
+    {
+        remove_trailing_slash(dir_path_copy);
+        strcat(new_path, dir_path_copy);
+        strcat(new_path, "/");
+        strcat(new_path, basename(path));
+    }
+    else
+    {
+        strcat(new_path, dirname(dir_path_copy));
+        strcat(new_path, "/");
+        strcat(new_path, basename(path));
+    }
+
+    
+    free(dir_path_copy);
+    return new_path;
+}
 
 /**
  * Test whether or not a directory is empty.
@@ -90,7 +133,8 @@ time_t      get_mtime(const char *path) {
  * @param settings      pointer to settings instance to initialize
  *
  */
-void    initSettings(Settings *settings){
+void    initSettings(Settings *settings)
+{
     settings->access = 0;
     settings->type = 0;
     settings->empty = false;
@@ -104,6 +148,29 @@ void    initSettings(Settings *settings){
     settings->exec_argc = 0;
     settings->exec_argv = NULL;
     return;
+}
+
+bool    settingsEmpty(const Settings *settings)
+{
+    if (settings->access == 0 &&\
+        settings->type == 0 &&\
+        settings->empty == false &&\
+        strcmp(settings->name,  "") == 0 &&\
+        strcmp(settings->path, "") == 0 &&\
+        settings->perm == 0 &&\
+        settings->newer == 0 &&\
+        settings->uid == -1 &&\
+        settings->gid == -1 &&\
+        settings->print == true &&\
+        settings->exec_argc == 0 &&\
+        settings->exec_argv == NULL
+    )
+    {
+        return true;
+    }
+    else{
+        return false;
+    }
 }
 
 void get_directory_contents(const char* path){

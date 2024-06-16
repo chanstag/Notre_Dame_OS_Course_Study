@@ -6,8 +6,8 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include <string.h>
-
 #include <dirent.h>
+#include <libgen.h>
 
 /**
  * Recursively search through the provided root directory
@@ -17,7 +17,6 @@
  */
 int search(const char *root, const Settings *settings)
 {
-    // DEBUG_PRINT(("%s\n", root));
     DIR *directory;
     int error;
     char *current_path;
@@ -26,24 +25,67 @@ int search(const char *root, const Settings *settings)
     bool success = false;
 
     current_path = (char *)malloc(sizeof(char) * strlen(root) + 1);
-    full_path = (char *)malloc(sizeof(char) * 2 * strlen(root) + 1);
     strcpy(current_path, root);
 
+
+    if(lstat(current_path, &fd) < 0)
+    {
+        perror("lstat");
+        return false; // Error occurred
+    }
+    if(S_ISDIR(fd.st_mode)) 
+    {
+        if(!filter(current_path, settings)){
+            printf("%s\n", current_path);
+        }
+        
+    }
+
     directory = opendir(current_path);
+    if(directory == NULL)
+    {
+        fprintf(stderr, "Error opening directory.\n");
+        return false;
+    }
     errno = 0;
     struct dirent *entry = readdir(directory);
-    if(entry  == NULL)
+    if(entry == NULL)
     {
         error = errno;
         if(error != -1){
-            fprintf(stderr, "Error reading directory entry.");
+            fprintf(stderr, "Error reading directory entry.\n");
+            return false;
         }
 
     }
 
     while (entry != NULL)
     {
-        snprintf(full_path, strlen(current_path) + strlen(entry->d_name) + 2, "%s/%s", current_path, entry->d_name);
+        if(strcmp(entry->d_name, ".") == 0)
+        {
+            entry = readdir(directory);
+            if(entry  == NULL){
+                error = errno;
+                if(error != -1){
+                    fprintf(stderr, "Error reading directory entry.");
+                    return false;
+                }
+            }
+        }
+        if(strcmp(entry->d_name, "..") == 0)
+        {
+            entry = readdir(directory);
+            if(entry  == NULL){
+                error = errno;
+                if(error != -1){
+                    fprintf(stderr, "Error reading directory entry.");
+                    return false;
+                }
+            }
+        }
+
+        full_path = join_path(current_path, entry->d_name);
+
         if (lstat(full_path, &fd) < 0)
         {
             error = errno;
@@ -82,24 +124,23 @@ int search(const char *root, const Settings *settings)
         {
             if (S_ISDIR(fd.st_mode))
             {
-                if (strcmp(entry->d_name, ".") == 0 || strcmp(entry->d_name, "..") == 0)
-                // if(fnmatch(dirname(copy_path), settings->path, FNM_PATHNAME) == 0)
+                if(search(full_path, settings) == true)
                 {
+                    success = true;
+                }
+            }
+            // call filter function on this file to see if it should be included in output
+            if(!filter(full_path, settings) && S_ISDIR(fd.st_mode) != 1)
+            {
+                if(strcmp(entry->d_name, ".") == 0 || strcmp(entry->d_name, "..") == 0){
 
                 }
                 else
                 {
-                    if(search(full_path, settings) == true)
-                    {
-                        success = true;
-                    }
+                    // execute(full_path, settings);
+                    printf("%s\n", full_path);
+                    
                 }
-            }
-            // call filter function on this file to see if it should be included in output
-            if(!filter(full_path, settings))
-            {
-                // execute(full_path, settings);
-                printf("%s\n", full_path);
                 success = true;
             }
             
@@ -121,22 +162,13 @@ int search(const char *root, const Settings *settings)
                 fprintf(stderr, "Error reading directory entry.");
             }
         }
-
-        
-        
-
     }
 
     if (entry == NULL && error != 0)
     {
-        fprintf(stderr, "Failed to read directory entry.");
+        fprintf(stderr, "Failed to read directory entry.\n");
+        return false;
     }
-    // else if (entry == NULL && error == 0)
-    // {
-        
-    // }
-    
-
     return success;
 }
 

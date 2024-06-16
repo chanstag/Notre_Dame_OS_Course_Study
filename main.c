@@ -8,12 +8,12 @@
 
 #include <sys/stat.h>
 #include <unistd.h>
-
 #include <assert.h>
 
 /* Functions */
 
 void        usage(const char *program_name, int status) {
+    printf("Enter usage\n");
     fprintf(stderr, "Usage: %s PATH [OPTIONS] [EXPRESSION]\n", program_name);
     fprintf(stderr, "\nOptions:\n");
     fprintf(stderr, "    -executable     File is executable or directory is searchable to user\n");
@@ -35,7 +35,6 @@ void        usage(const char *program_name, int status) {
 }
 
 char const *options_vec[] = {"-executable", "-readable", "-writeable", "-type", "-empty", "-name", "-path", "-perm", "-newer", "-uid", "-gid"};
-
 
 enum options{
     executable,
@@ -59,6 +58,8 @@ enum options{
  */
 Settings*       parseArgs(int argc,char *argv[]){
     enum options opts;
+    bool valid_option = false;
+
     Settings* settings = (Settings*)malloc(sizeof(Settings));
     if(settings == NULL){
         fprintf(stderr, "Failed to allocated memory. On line: %d", __LINE__);
@@ -68,7 +69,7 @@ Settings*       parseArgs(int argc,char *argv[]){
     initSettings(settings);
     int i = 2;
     int len_options = sizeof(options_vec)/sizeof(char*);
-    bool valid_option = false;
+    
     while(i < argc){
         valid_option = false;
         for(int j = 0; j < len_options; j++){
@@ -77,18 +78,18 @@ Settings*       parseArgs(int argc,char *argv[]){
                 opts = j;
                  switch(opts){
                     case executable:
-                        settings->access = X_OK;
-                        settings->type = 1;
+                        settings->access = X_OK | settings->access;
+                        // settings->type = 1;
                         i++;
                         break;
                     case readable:
-                        settings->access = R_OK;
-                        settings->type = 1;
+                        settings->access = R_OK | settings->access;
+                        // settings->type = 1;
                         i++;
                         break;
                     case writeable:
-                        settings->access = W_OK;
-                        settings->type = 1;
+                        settings->access = W_OK | settings->access;
+                        // settings->type = 1;
                         i++;
                         break;
                     case type:
@@ -110,7 +111,7 @@ Settings*       parseArgs(int argc,char *argv[]){
                         break;
                     case name:
                         //idk how to handle shell patterns yet
-                        settings->name = "*.txt"; //will need to fix this
+                        settings->name = argv[i+1]; //will need to fix this
                         i += 2;
                         break;
                     case path:
@@ -286,7 +287,7 @@ void        test(){
 
     //test 8 search.c failure
     test_search_settings.path = "/Users/chanstag/Systems Programming/Notre_Dame_Courses/cse-20289-sp17-project01/Test_Folder_2";
-    test_search_settings.type = NULL;
+    test_search_settings.type = 0;
     test_search_settings.name = NULL;
     test_search_settings.empty = false;
     test_search_settings.newer = -1;
@@ -322,9 +323,12 @@ void        test(){
 
 /* Main Execution */
 
-int	main(int argc, char *argv[]) {
-
+int	main(int argc, char **argv) {
     if(argc == 1)
+    {
+        usage(argv[0], 1);
+    }
+    if(argc == 2 && (strcmp(argv[1], "--help") == 0 || strcmp(argv[1], "-help") == 0))
     {
         usage(argv[0], 1);
     }
@@ -338,6 +342,9 @@ int	main(int argc, char *argv[]) {
     // }
     else{
         Settings *s = parseArgs(argc, argv);
+        if(s == NULL){ // settings should not be NULL here
+            return EXIT_FAILURE;
+        }
         search(argv[1], s);
     }
     return EXIT_SUCCESS;

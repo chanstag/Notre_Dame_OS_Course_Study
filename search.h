@@ -74,9 +74,11 @@ int	        search(const char *root, const Settings *settings);
 bool	    filter(const char *path, const Settings *settings);
 int         execute(const char *path, const Settings *settings);
 
+char*       join_path(char* dir_path, char* path);
 bool        is_directory_empty(const char *path);
 time_t      get_mtime(const char *path);
 void        initSettings(Settings *settings);
+bool        settingsEmpty(const Settings *settings);
 
 void        print_directory_contents(const char *path);
 mode_t      int_to_mode(int perm);

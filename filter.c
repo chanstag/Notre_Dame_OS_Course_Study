@@ -82,62 +82,57 @@ bool        filter(const char *path, const Settings *settings) {
                }
                return true;
            }
-           else
-           {
-               
-           }
-          //
-          if(settings->type == 2 && S_ISDIR(fd.st_mode) != 0)
+          if((settings->type == 1 && S_ISDIR(fd.st_mode) == 1) || (S_ISLNK(fd.st_mode) == 1 && settings->type == 1))
           {
-               return false;
+               return true;
+          }
+          if(settings->type == 2 && S_ISDIR(fd.st_mode) == 0)
+          {
+               return true;
           }
           if(settings->empty && S_ISDIR(fd.st_mode)){
                
           }
-          if(settings->empty && fd.st_size == 0)
-          {
-               return false;
-          }
-          if(settings->name)
-          {
-               if(strcmp(settings->name, basename(copy_path)) == 0)//
-               {
-                    return false;
-               }
-
-          }
-          if(settings->path)
-          {
-               // printf("dirname: %s", dirname(copy_path));
-               if(fnmatch(dirname(copy_path), settings->path, FNM_PATHNAME) == 0)//check if directory name matches pattern
-               {
-                    return false;
-               }
-          }
-          if((int_to_mode(settings->perm) == fd.st_mode))//Check if permissions match settings
-          {
-               return false;
-          }
-          if(settings->newer != -1 && settings->newer < fd.st_mtimespec.tv_sec){//check if file is newer than setting time
-               return false;
-          }
-          if(settings->uid == fd.st_uid)
-          {
-               return false;
-          }
-          if(settings->gid == fd.st_gid)
-          {
-               return false;
-          }
-          else
+          if(settings->empty && fd.st_size != 0)
           {
                return true;
           }
-
-
-        
+          if(strcmp(settings->name, "") != 0)
+          {
+               if(strcmp(settings->name, basename(copy_path)) != 0)//
+               {
+                    return true;
+               }
+          }
+          if(strlen(settings->path) > 0)
+          {
+               // printf("dirname: %s", dirname(copy_path));
+               if(fnmatch(dirname(copy_path), settings->path, FNM_PATHNAME) != 0)//check if directory name matches pattern
+               {
+                    return true;
+               }
+          }
+          if(settings->perm > 0 && (int_to_mode(settings->perm) != fd.st_mode))//Check if permissions match settings
+          {
+               return true;
+          }
+          if(settings->newer != -1 && settings->newer > fd.st_mtimespec.tv_sec){//check if file is newer than setting time
+               return true;
+          }
+          if(settings->uid != -1 && settings->uid != fd.st_uid)
+          {
+               return true;
+          }
+          if(settings->gid != -1 && settings->gid != fd.st_gid)
+          {
+               return true;
+          }
+          else
+          {
+               return false;
+          }
     }
-    return false;
+    return true;
 }
 
 /* vim: set sts=4 sw=4 ts=8 expandtab ft=c: */

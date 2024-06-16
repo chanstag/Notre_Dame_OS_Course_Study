@@ -28,5 +28,6 @@ $(ODIR)/%.o: %.c $(DEPS)
 	$(CC) -c -o $@ $< $(CFLAGS) $(LDFLAGS)
 
 search: $(OBJ)
+	@echo "$(OBJ)"
 	$(CC) -o $@ $^ $(CFLAGS)
 
